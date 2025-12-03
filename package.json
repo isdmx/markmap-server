@@ -1,0 +1,78 @@
+{
+    "name": "@isdmx/markmap-stateless-server",
+    "description": "Stateless web server for converting Markdown to interactive mind maps with export support (PNG/JPG/SVG)",
+    "version": "0.2.4",
+    "author": "isdmx",
+    "main": "./build/index.js",
+    "keywords": [
+        "markmap",
+        "mindmap",
+        "mindnode",
+        "xmind",
+        "markdown",
+        "html"
+    ],
+    "scripts": {
+        "test": "vitest run | pino-pretty",
+        "test:watch": "vitest watch",
+        "build": "tsc && chmod u+x build/index.js",
+        "start": "node build/index.js",
+        "dev": "tsc-watch --onSuccess \"node build/index.js\" | pino-pretty",
+        "format": "prettier --write . --ignore-path .gitignore",
+        "prepare": "husky"
+    },
+    "bin": {
+        "markmap-stateless-server": "build/index.js"
+    },
+    "type": "module",
+    "files": [
+        "build"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/isdmx/markmap-mcp-server.git"
+    },
+    "lint-staged": {
+        "*.{js,ts,jsx,tsx}": [
+            "prettier --write",
+            "eslint --fix"
+        ],
+        "*.{md,json,yml,yaml,html,css}": [
+            "prettier --write"
+        ]
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^5.1.0",
+        "markmap-cli": "^0.18.11",
+        "minimist": "^1.2.8",
+        "open": "^10.1.0",
+        "pino": "^9.6.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.24.0",
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.5",
+        "@types/minimist": "^1.2.5",
+        "@types/node": "^22.14.0",
+        "esbuild": "^0.25.2",
+        "eslint": "^9.24.0",
+        "eslint-config-prettier": "^10.1.2",
+        "eslint-plugin-prettier": "^5.2.6",
+        "globals": "^16.0.0",
+        "husky": "^9.1.7",
+        "lint-staged": "^15.5.1",
+        "pino-pretty": "^13.0.0",
+        "prettier": "^3.5.3",
+        "prettier-plugin-organize-imports": "^4.1.0",
+        "tsc-watch": "6.2.1",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.29.1",
+        "vite": "^6.3.5",
+        "vitest": "^3.1.3"
+    },
+    "optionalDependencies": {
+        "@rollup/rollup-linux-x64-gnu": "^4.40.1"
+    }
+}
