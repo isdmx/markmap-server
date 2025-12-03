@@ -1,12 +1,12 @@
-# Markmap Stateless Server
+# Markmap Server
 
-![Sample Mindmap](https://raw.githubusercontent.com/isdmx/markmap-mcp-server/refs/heads/master/docs/markmap.svg)
+![Sample Mindmap](https://raw.githubusercontent.com/isdmx/markmap-server/refs/heads/master/docs/markmap.svg)
 
-[![NPM Version](https://img.shields.io/npm/v/@isdmx/markmap-stateless-server.svg)](https://www.npmjs.com/package/@isdmx/markmap-stateless-server)
-[![GitHub License](https://img.shields.io/github/license/isdmx/markmap-mcp-server.svg)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/isdmx/markmap-mcp-server)](https://github.com/isdmx/markmap-mcp-server)
+[![NPM Version](https://img.shields.io/npm/v/@isdmx/markmap-server.svg)](https://www.npmjs.com/package/@isdmx/markmap-server)
+[![GitHub License](https://img.shields.io/github/license/isdmx/markmap-server.svg)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/isdmx/markmap-server)](https://github.com/isdmx/markmap-server)
 
-Markmap Stateless Server is a lightweight, stateless web application that allows one-click conversion of Markdown text to interactive mind maps, built on the open source project [markmap](https://github.com/markmap/markmap). The generated mind maps support rich interactive operations and can be exported in various image formats.
+Markmap Server is a lightweight web application that allows one-click conversion of Markdown text to interactive mind maps, built on the open source project [markmap](https://github.com/markmap/markmap). The generated mind maps support rich interactive operations and can be exported in various image formats.
 
 > 🎉 **Explore More Mind Mapping Tools**
 >
@@ -18,7 +18,7 @@ Markmap Stateless Server is a lightweight, stateless web application that allows
 - 🖼️ **Multi-format Export**: Support for exporting as PNG, JPG, and SVG images
 - 🔄 **Interactive Operations**: Support for zooming, expanding/collapsing nodes, and other interactive features
 - 📋 **Markdown Copy**: One-click copy of the original Markdown content
-- 🌐 **Stateless Architecture**: No session management required, making it suitable for containerized deployments
+- 🌐 **Lightweight Architecture**: No session management required, making it suitable for containerized deployments
 - 📡 **JSON-RPC 2.0 Compatible**: Supports both direct and MCP-style request formats
 
 ## Prerequisites
@@ -31,26 +31,26 @@ Markmap Stateless Server is a lightweight, stateless web application that allows
 
 ```bash
 # Install from npm
-npm install @isdmx/markmap-stateless-server -g
+npm install @isdmx/markmap-server -g
 
 # Basic run
-npx -y @isdmx/markmap-stateless-server
+npx -y @isdmx/markmap-server
 
 # Specify output directory
-npx -y @isdmx/markmap-stateless-server --output /path/to/output/directory
+npx -y @isdmx/markmap-server --output /path/to/output/directory
 
 # Or
-markmap-stateless-server
+markmap-server
 ```
 
 Alternatively, you can clone the repository and run locally:
 
 ```bash
 # Clone the repository
-git clone https://github.com/isdmx/markmap-mcp-server.git
+git clone https://github.com/isdmx/markmap-server.git
 
 # Navigate to the project directory
-cd markmap-mcp-server
+cd markmap-server
 
 # Build project
 npm install && npm run build
@@ -190,16 +190,33 @@ curl http://localhost:3000/readyz
 - `--output, -o <path>`: Output directory for generated HTML files (optional)
 - `--help, -h`: Show help information
 
+## Metrics
+
+The server exposes Prometheus metrics at the `/metrics` endpoint:
+
+- **Endpoint**: `GET /metrics`
+- **Response**: Prometheus-formatted metrics
+
+The following metrics are collected:
+- `documents_processed_total`: Total number of documents processed
+- `document_processing_time_seconds`: Time spent processing documents (histogram)
+- `input_document_size_bytes`: Size of input documents in bytes (histogram)
+
+Example:
+```bash
+curl http://localhost:3000/metrics
+```
+
 ## Docker Deployment
 
 You can also run the server using Docker:
 
 ```bash
 # Build the image
-docker build -t markmap-stateless-server .
+docker build -t markmap-server .
 
 # Run the server
-docker run -p 3000:3000 markmap-stateless-server
+docker run -p 3000:3000 markmap-server
 ```
 
 ## License

@@ -6,10 +6,12 @@ import minimist from "minimist";
 import { existsSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { Buffer } from "node:buffer";
 import logger from "./utils/logger.js";
+import client from "prom-client";
 
 /**
- * Parses and validates command line arguments for the Markmap Stateless Server.
+ * Parses and validates command line arguments for the Markmap Server.
  *
  * @returns Configuration object with output directory option
  */
@@ -24,9 +26,9 @@ function parseArgs() {
     });
 
     if (args.help) {
-        logger.info(`Markmap Stateless Server - Mind map generator for Markdown
+        logger.info(`Markmap Server - Mind map generator for Markdown
 
-  Usage: markmap-stateless-server [options]
+  Usage: markmap-server [options]
 
   Options:
     --output, -o <file>        Output HTML file directory (for file saving, optional)
@@ -40,11 +42,29 @@ function parseArgs() {
 }
 
 /**
- * Main function that initializes and starts the Markmap Stateless Server.
+ * Main function that initializes and starts the Markmap Server.
  * This function sets up HTTP endpoint on port 3000 for converting markdown to HTML.
  */
 async function main() {
     const options = parseArgs();
+
+    // Set up Prometheus metrics
+    const documentsProcessed = new client.Counter({
+        name: 'documents_processed_total',
+        help: 'Total number of documents processed'
+    });
+
+    const processingTime = new client.Histogram({
+        name: 'document_processing_time_seconds',
+        help: 'Time spent processing documents',
+        buckets: [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1] // Define custom buckets in seconds for realistic processing times
+    });
+
+    const inputDocumentSize = new client.Histogram({
+        name: 'input_document_size_bytes',
+        help: 'Size of input documents in bytes',
+        buckets: [50, 100, 200, 500, 1000, 2000, 5000, 10000] // Define custom buckets for document size
+    });
 
     // Set up Express app
     const app = express();
@@ -67,7 +87,7 @@ async function main() {
         outputPath = tempDir;
     }
 
-    // Stateless POST endpoint to convert markdown to HTML
+    // POST endpoint to convert markdown to HTML
     app.post("/convert", async (req: ExpressRequest, res: ExpressResponse) => {
         const method = req.method;
         const url = req.url;
@@ -131,12 +151,25 @@ async function main() {
                 });
             }
 
+            // Record input document size metric
+            inputDocumentSize.observe(Buffer.byteLength(markdown, 'utf8'));
+
+            // Start timing the processing
+            const startTime = Date.now();
+
             // Convert markdown to HTML
             const result = await createMarkmap({
                 content: markdown,
                 output: options.output ? join(outputPath, `markmap-${Date.now()}.html`) : undefined,
                 openIt: false
             });
+
+            // Calculate processing time and record it
+            const processingDuration = (Date.now() - startTime) / 1000; // Convert to seconds
+            processingTime.observe(processingDuration);
+
+            // Record that a document was processed
+            documentsProcessed.inc();
 
             // Format response similar to MCP contract
             const response = {
@@ -192,7 +225,7 @@ async function main() {
     app.get("/", (req: ExpressRequest, res: ExpressResponse) => {
         res.status(200).json({
             status: "ok",
-            message: "Markmap Stateless Server is running",
+            message: "Markmap Server is running",
             timestamp: new Date().toISOString()
         });
     });
@@ -216,6 +249,16 @@ async function main() {
         });
     });
 
+    // Prometheus metrics endpoint
+    app.get("/metrics", async (req: ExpressRequest, res: ExpressResponse) => {
+        try {
+            res.set('Content-Type', client.register.contentType);
+            res.end(await client.register.metrics());
+        } catch (ex) {
+            res.status(500).end(ex);
+        }
+    });
+
     // Start the server on port 3000
     const PORT = 3000;
     const server = app.listen(PORT, () => {
@@ -226,7 +269,7 @@ async function main() {
             event: "server_started",
             port: PORT,
             protocol: "HTTP",
-            message: "Markmap Stateless Server started successfully"
+            message: "Markmap Server started successfully"
         }));
     });
 
@@ -236,7 +279,7 @@ async function main() {
             timestamp,
             level: "error",
             event: "server_start_error",
-            message: "Error starting Markmap Stateless Server",
+            message: "Error starting Markmap Server",
             error: error instanceof Error ? error.message : String(error)
         }));
     });
@@ -249,19 +292,19 @@ async function main() {
             level: "info",
             event: "shutdown_initiated",
             signal: "SIGINT",
-            message: "Shutting down Markmap Stateless Server..."
+            message: "Shutting down Markmap Server..."
         }));
         logger.info(JSON.stringify({
             timestamp,
             level: "info",
             event: "server_shutdown_complete",
-            message: "Markmap Stateless Server shutdown complete"
+            message: "Markmap Server shutdown complete"
         }));
         process.exit(0);
     });
 }
 
 main().catch((error) => {
-    logger.error("Failed to start Markmap Stateless Server: %s", error);
+    logger.error("Failed to start Markmap Server: %s", error);
     process.exit(1);
 });

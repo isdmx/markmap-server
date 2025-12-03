@@ -28,7 +28,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: docker.io/isdmx/markmap-mcp-server
+          images: docker.io/isdmx/markmap-server
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
