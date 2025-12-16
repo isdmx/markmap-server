@@ -245,11 +245,13 @@ export async function createMarkmap(
             }
 
             window.mm.fit().then(() => {
+              const isDarkMode = document.documentElement.classList.contains('markmap-dark');
+
               const options = {
-                backgroundColor: "#ffffff",
-                quality: 1.0,
-                width: node.getBoundingClientRect().width,
-                height: node.getBoundingClientRect().height
+                  backgroundColor: isDarkMode ? "#27272a" : "#ffffff",
+                  quality: 1.0,
+                  width: node.getBoundingClientRect().width,
+                  height: node.getBoundingClientRect().height
               };
 
               const exportPromise = format === 'svg'
