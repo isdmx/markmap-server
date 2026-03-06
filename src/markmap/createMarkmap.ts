@@ -102,18 +102,29 @@ export async function createMarkmap(
 
     <style>
       /* Export toolbar styles */
+      @media (prefers-color-scheme: dark) {
+        .mm-export-toolbar {
+          background: #1a1a1a;
+        }
+      }
       .mm-export-toolbar {
         position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
+        bottom: 0;
         z-index: 1000;
         background: rgba(255, 255, 255, 0.9);
-        border-radius: 8px;
+        border-radius: 0px;
         padding: 8px 16px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         display: flex;
         gap: 10px;
+        width: 100%;
+        box-sizing: border-box;
+        overflow-y: auto;
+        justify-content: space-evenly;
+      }
+      .mm-toolbar {
+        top: 20px !important;
+        bottom: auto !important;
       }
       .mm-export-btn {
         padding: 6px 12px;
