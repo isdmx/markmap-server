@@ -121,6 +121,9 @@ export async function createMarkmap(
         box-sizing: border-box;
         overflow-y: auto;
         justify-content: space-evenly;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 500px;
       }
       .mm-toolbar {
         top: 20px !important;
